@@ -2,7 +2,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
-using Unity.Physics.Extensions;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +9,7 @@ using UnityEngine.InputSystem;
 namespace HastyMess.Scripts.Systems
 {
     // ReSharper disable once PartialTypeWithSinglePart
+    // ReSharper disable once RedundantExtendsListEntry
     public partial class BillControllerSystem : SystemBase
     {
         private GameInput _gameInput;
@@ -25,26 +25,15 @@ namespace HastyMess.Scripts.Systems
 
         protected override void OnUpdate()
         {
-            var moveDirection = new float3(_move.ReadValue<Vector2>().x, _move.ReadValue<Vector2>().y, 0);
-            // Alternative for FixedUpdate()
-            var deltaTime = Time.fixedDeltaTime;
+            var moveDirection =
+                math.normalizesafe(new float3(_move.ReadValue<Vector2>().x, _move.ReadValue<Vector2>().y, 0));
 
-            Entities.ForEach((ref PhysicsVelocity physicsVelocity, ref PhysicsMass physicsMass, ref Rotation rotation,
-                in BillComponent bill) =>
+            Entities.ForEach((ref PhysicsVelocity physicsVelocity, ref Rotation rotation, in BillComponent bill) =>
             {
                 // Removes any rotation
                 rotation.Value = quaternion.Euler(0, 0, 0);
-
-                // If there's no input, stop the player
-                if (moveDirection.Equals(new float3(0, 0, 0)))
-                {
-                    physicsVelocity.Linear = new float3(0, 0, 0);
-                    return;
-                }
-
-                // TODO: Cap the maximum speed somehow
-                var forceVector = moveDirection * bill.MoveSpeed * deltaTime;
-                physicsVelocity.ApplyLinearImpulse(physicsMass, forceVector);
+                // Applies movement
+                physicsVelocity.Linear = moveDirection * bill.MoveSpeed;
             }).Run();
         }
     }
