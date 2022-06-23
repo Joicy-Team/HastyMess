@@ -211,7 +211,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 9.875
+  orthographic size: 6.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -478,8 +478,8 @@ MonoBehaviour:
   m_MotionType: 0
   m_Smoothing: 0
   m_Mass: 10
-  m_LinearDamping: 0.01
-  m_AngularDamping: 0.05
+  m_LinearDamping: 10
+  m_AngularDamping: 10
   m_InitialLinearVelocity:
     x: 0
     y: 0
@@ -539,7 +539,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ba3d6598d71435da93aceb0e42d946e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 5
+  Speed: 50
+  DashForce: 5000
+  DashCooldown: 1
+  CooldownPassed: 1
+  MoveDirection:
+    x: 0
+    y: 0
+  LastMoveDirection:
+    x: 0
+    y: 0
 --- !u!114 &690875499
 MonoBehaviour:
   m_ObjectHideFlags: 0
