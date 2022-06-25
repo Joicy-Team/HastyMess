@@ -6,6 +6,7 @@ using Unity.Physics;
 namespace HastyMess.Scripts.Systems
 {
     [UpdateAfter(typeof(BillControllerSystem))]
+    // ReSharper disable once RedundantExtendsListEntry
     public partial class BillMovementSystem : SystemBase
     {
         protected override void OnUpdate()
