@@ -388,7 +388,7 @@ GameObject:
   - component: {fileID: 690875497}
   - component: {fileID: 690875496}
   - component: {fileID: 690875499}
-  - component: {fileID: 690875498}
+  - component: {fileID: 690875500}
   m_Layer: 0
   m_Name: Bill
   m_TagString: Player
@@ -527,28 +527,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &690875498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 690875489}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ba3d6598d71435da93aceb0e42d946e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Speed: 50
-  DashForce: 5000
-  DashCooldown: 1
-  CooldownPassed: 1
-  MoveDirection:
-    x: 0
-    y: 0
-  LastMoveDirection:
-    x: 0
-    y: 0
 --- !u!114 &690875499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -562,3 +540,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+--- !u!114 &690875500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690875489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db0e41a1add4bc4a72b3bbea6a7dfbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  dashForce: 50
+  dashCooldown: 1

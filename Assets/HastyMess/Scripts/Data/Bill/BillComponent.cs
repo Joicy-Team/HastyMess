@@ -1,9 +1,12 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
+
+// ReSharper disable InconsistentNaming
 
 namespace HastyMess.Scripts.Data
 {
-    [GenerateAuthoringComponent]
+    [Serializable]
     public struct BillComponent : IComponentData
     {
         public float Speed;
