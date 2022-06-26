@@ -1,8 +1,6 @@
 ﻿using HastyMess.Scripts.Data;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Physics;
-using Unity.Physics.Extensions;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -28,49 +26,54 @@ namespace HastyMess.Scripts.Systems
 
         protected override void OnUpdate()
         {
-            var moveDirection = math.normalizesafe
-            (new float2(
-                _move.ReadValue<Vector2>().x,
-                _move.ReadValue<Vector2>().y
-            ));
+            var moveDirection = ReadMovement(_move);
             var dashAction = _dash.WasPerformedThisFrame();
-            var deltaTime = Time.DeltaTime;
-            var fixedDeltaTime = Time.fixedDeltaTime;
+            var timeDeltaTime = Time.DeltaTime;
 
-            Entities.ForEach(
-                (
-                    ref PhysicsVelocity velocity, ref Rotation rotation, ref BillComponent bill,
-                    in PhysicsMass mass
-                ) =>
-                {
-                    if (bill.CooldownPassed < bill.DashCooldown)
-                        bill.CooldownPassed += deltaTime;
+            float2 ReadMovement(InputAction inputAction)
+            {
+                return math.normalizesafe
+                (new float2(
+                    inputAction.ReadValue<Vector2>().x,
+                    inputAction.ReadValue<Vector2>().y
+                ));
+            }
 
-                    rotation.Value = Quaternion.Euler(0, 0, 0);
-                    HandleMovement(ref bill, moveDirection);
-                    HandleDash(ref velocity, ref bill, mass, dashAction, fixedDeltaTime);
-                }).Run();
+            BillComponent CheckDashCooldown(BillComponent bill, float deltaTime)
+            {
+                if (bill.CooldownPassed < bill.DashCooldown)
+                    bill.CooldownPassed += deltaTime;
+                return bill;
+            }
+
+            Rotation FixRotation(Rotation rotation)
+            {
+                rotation.Value = Quaternion.Euler(0, 0, 0);
+                return rotation;
+            }
+
+            Entities.ForEach((ref Rotation rotation, ref BillComponent bill) =>
+            {
+                bill = CheckDashCooldown(bill, timeDeltaTime);
+
+                rotation = FixRotation(rotation);
+                bill = HandleMovement(bill, moveDirection);
+                bill = HandleDash(bill, dashAction);
+            }).Run();
         }
 
-        private static void HandleMovement(ref BillComponent bill, float2 moveDirection)
+        private static BillComponent HandleMovement(BillComponent bill, float2 moveDirection)
         {
             bill.MoveDirection = moveDirection;
             if (!moveDirection.Equals(new float2(0, 0)))
                 bill.LastMoveDirection = moveDirection;
+            return bill;
         }
 
-        private static void HandleDash
-        (
-            ref PhysicsVelocity physicsVelocity, ref BillComponent bill,
-            PhysicsMass physicsMass, bool dashAction, float deltaTime
-        )
+        private static BillComponent HandleDash(BillComponent bill, bool dashAction)
         {
-            var forceVector = bill.LastMoveDirection * bill.DashForce * deltaTime;
-
-            // Applies dash if dash key was performed this frame and dash cooldown has passed
-            if (!dashAction || bill.CooldownPassed < bill.DashCooldown) return;
-            physicsVelocity.ApplyLinearImpulse(physicsMass, new float3(forceVector, 0));
-            bill.CooldownPassed = 0f;
+            bill.DashAction = dashAction;
+            return bill;
         }
     }
 }

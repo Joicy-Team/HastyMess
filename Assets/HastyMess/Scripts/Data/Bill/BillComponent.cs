@@ -15,5 +15,6 @@ namespace HastyMess.Scripts.Data
         public float CooldownPassed;
         public float2 MoveDirection;
         public float2 LastMoveDirection;
+        public bool DashAction;
     }
 }
