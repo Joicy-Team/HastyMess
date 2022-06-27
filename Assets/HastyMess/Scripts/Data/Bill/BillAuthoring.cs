@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HastyMess.Scripts.Data
 {
-    [ConverterVersion("unity", 1)]
+    [AddComponentMenu("DOTS/Components/Bill Authoring")]
     public class BillAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float speed;
