@@ -1,29 +1,26 @@
 ﻿using HastyMess.Scripts.Data;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Physics;
-using Unity.Physics.Extensions;
+using UnityEngine;
 
 namespace HastyMess.Scripts.Systems
 {
     // ReSharper disable once PartialTypeWithSinglePart
+    // ReSharper disable once RedundantExtendsListEntry
     public partial class BillDashSystem : SystemBase
     {
         protected override void OnUpdate()
         {
             var deltaTime = Time.fixedDeltaTime;
-            Entities.ForEach(
-                (
-                    ref PhysicsVelocity velocity, ref BillComponent bill, in PhysicsMass mass
-                ) =>
-                {
-                    var forceVector = bill.LastMoveDirection * bill.DashForce * deltaTime;
+            Entities.ForEach((ref BillData bill, in ChildEntity child) =>
+            {
+                // Applies dash if dash key was performed this frame and dash cooldown has passed
+                if (!child.Parent.TryGetComponent(out Rigidbody2D rb)) return;
+                if (!bill.DashAction || bill.CooldownPassed < bill.DashCooldown) return;
 
-                    // Applies dash if dash key was performed this frame and dash cooldown has passed
-                    if (!bill.DashAction || bill.CooldownPassed < bill.DashCooldown) return;
-                    velocity.ApplyLinearImpulse(mass, new float3(forceVector, 0));
-                    bill.CooldownPassed = 0f;
-                }).Run();
+                var forceVector = bill.LastMoveDirection * bill.DashForce * deltaTime;
+                rb.AddForce(forceVector, ForceMode2D.Impulse);
+                bill.CooldownPassed = 0f;
+            }).WithoutBurst().Run();
         }
     }
 }

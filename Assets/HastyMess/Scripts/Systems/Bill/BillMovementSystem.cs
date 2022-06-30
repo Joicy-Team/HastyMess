@@ -1,7 +1,5 @@
 ﻿using HastyMess.Scripts.Data;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Physics;
 using UnityEngine;
 
 namespace HastyMess.Scripts.Systems
@@ -18,26 +16,26 @@ namespace HastyMess.Scripts.Systems
         {
             var deltaTime = Time.DeltaTime;
 
-            // Movement
-            Entities.ForEach((ref PhysicsVelocity velocity, in BillComponent bill) =>
+            Entities.ForEach((in BillData bill, in ChildEntity child) =>
             {
-                var newVelocity = velocity.Linear.xy;
+                // Movement
+                if (child.Parent.TryGetComponent(out Rigidbody2D rb))
+                {
+                    var vel = rb.velocity;
 
-                // Don't update velocity if dashing
-                if (!math.any(newVelocity >= new float2(bill.Speed, bill.Speed)))
-                    newVelocity += bill.MoveDirection * bill.Speed * deltaTime;
+                    // Don't update velocity if dashing
+                    if (vel.x < bill.Speed && vel.y < bill.Speed)
+                        vel += bill.MoveDirection * bill.Speed * deltaTime;
 
-                velocity.Linear.xy = newVelocity;
-            }).Run();
+                    rb.velocity = vel;
+                }
 
-            // Movement animations
-            Entities.ForEach((in BillComponent bill, in ChildEntityComponent child) =>
-            {
+                // Animations
                 if (!child.Parent.TryGetComponent(out Animator animator)) return;
-                
+
                 animator.SetFloat(Horizontal, bill.MoveDirection.x);
                 animator.SetFloat(Vertical, bill.MoveDirection.y);
-                animator.SetFloat(Speed, new Vector2(bill.MoveDirection.x, bill.MoveDirection.y).sqrMagnitude);
+                animator.SetFloat(Speed, bill.MoveDirection.sqrMagnitude);
             }).WithoutBurst().Run();
         }
     }

@@ -1,7 +1,5 @@
 ﻿using HastyMess.Scripts.Data;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,51 +24,34 @@ namespace HastyMess.Scripts.Systems
 
         protected override void OnUpdate()
         {
-            var moveDirection = ReadMovement(_move);
+            var moveDirection = _move.ReadValue<Vector2>().normalized;
             var dashAction = _dash.WasPerformedThisFrame();
             var timeDeltaTime = Time.DeltaTime;
 
-            float2 ReadMovement(InputAction inputAction)
-            {
-                return math.normalizesafe
-                (new float2(
-                    inputAction.ReadValue<Vector2>().x,
-                    inputAction.ReadValue<Vector2>().y
-                ));
-            }
-
-            BillComponent CheckDashCooldown(BillComponent bill, float deltaTime)
-            {
-                if (bill.CooldownPassed < bill.DashCooldown)
-                    bill.CooldownPassed += deltaTime;
-                return bill;
-            }
-
-            Rotation FixRotation(Rotation rotation)
-            {
-                rotation.Value = Quaternion.Euler(0, 0, 0);
-                return rotation;
-            }
-
-            Entities.ForEach((ref Rotation rotation, ref BillComponent bill) =>
+            Entities.ForEach((ref BillData bill) =>
             {
                 bill = CheckDashCooldown(bill, timeDeltaTime);
-
-                rotation = FixRotation(rotation);
                 bill = HandleMovement(bill, moveDirection);
                 bill = HandleDash(bill, dashAction);
             }).Run();
         }
 
-        private static BillComponent HandleMovement(BillComponent bill, float2 moveDirection)
+        private static BillData CheckDashCooldown(BillData bill, float deltaTime)
+        {
+            if (bill.CooldownPassed < bill.DashCooldown)
+                bill.CooldownPassed += deltaTime;
+            return bill;
+        }
+
+        private static BillData HandleMovement(BillData bill, Vector2 moveDirection)
         {
             bill.MoveDirection = moveDirection;
-            if (!moveDirection.Equals(new float2(0, 0)))
+            if (moveDirection != Vector2.zero)
                 bill.LastMoveDirection = moveDirection;
             return bill;
         }
 
-        private static BillComponent HandleDash(BillComponent bill, bool dashAction)
+        private static BillData HandleDash(BillData bill, bool dashAction)
         {
             bill.DashAction = dashAction;
             return bill;
