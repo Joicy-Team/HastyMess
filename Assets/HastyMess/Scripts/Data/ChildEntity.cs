@@ -4,7 +4,7 @@ using UnityEngine;
 namespace HastyMess.Scripts.Data
 {
     [GenerateAuthoringComponent]
-    public class ChildEntityComponent : IComponentData
+    public class ChildEntity : IComponentData
     {
         public GameObject Parent;
     }
